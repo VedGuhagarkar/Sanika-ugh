@@ -1,215 +1,367 @@
-# Sanika-ugh
-Cuz sanika ugh
+01
+
+clc;
+clear;
+close all;
+
+N = 1000;                   
+t = linspace(0, 1, N);       
+num_realizations = 5;        
+
+f = 5;                       
+A = 2;                       
+
+X = zeros(num_realizations, N);
+
+figure;
+hold on;
+title('Realizations of Random Process X(t)');
+xlabel('Time (t)');
+ylabel('Amplitude');
+grid on;
+
+for i = 1:num_realizations
+    theta = 2*pi*rand();                  
+    X(i, :) = A * cos(2*pi*f*t + theta); 
+    plot(t, X(i, :));
+end
+legend({'Realization 1', 'Realization 2', 'Realization 3', 'Realization 4', 'Realization 5'});
+hold off;
+
+ensemble_mean = mean(X, 1);
+
+[xc, lags] = xcorr(X(1, :), 'biased');
+
+ensemble_variance = var(X, 0, 1);
+
+figure;
+plot(t, ensemble_mean, 'LineWidth', 2);
+title('Ensemble Mean of Random Process');
+xlabel('Time (t)');
+ylabel('Mean');
+grid on;
+
+figure;
+plot(lags, xc, 'LineWidth', 2);
+title('Autocorrelation of 1st Realization');
+xlabel('Lag');
+ylabel('Autocorrelation');
+grid on;
+
+figure;
+plot(t, ensemble_variance, 'r', 'LineWidth', 2);
+title('Ensemble Variance of Random Process');
+xlabel('Time (t)');
+ylabel('Variance');
+grid on;
 
 
-OUTPUT: 
- 
-#include <reg51.h> 
- 
-void delay(); 
- 
-void main() {     while(1) {         P2 = 0xFF;   // All LEDs OFF         delay(); 
-        P2 = 0x00;   // All LEDs ON         delay(); 
-    } 
-} 
- 
-void delay() { 
-    int i, j; 
-    for(i = 0; i < 1000; i++) {         for(j = 0; j < 100; j++); 
-    } 
-} 
 
-Generation of PWM signal for DC Motor control. 
-CODE :- 
-#include<PIC18F4550.h> 
-#define SW1 PORTAbits.RA2 #define SW2 PORTAbits.RA3 void main(void) 
-{ 
-    ADCON1=0X0F; 
-    TRISCbits.TRISC2 =0; 
-    TRISAbits.TRISA2 =1; 
-    TRISAbits.TRISA3 =1; 
-    T2CON = 0X02;     PR2 = 149;     while(1) 
-    { 
-        if (SW1==0) 
-        { 
-            CCPR1L=37; 
-            CCP1CON=0X1F;             TMR2ON=1;             if (SW2==0)                 break; 
-        } 
-         if (SW2==0) 
-        { 
-            CCPR1L=111; 
-            CCP1CON=0X3F;             TMR2ON=1;             if (SW1==0)                 break;         } 
-    } 
-} 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Interfacing of LCD to PIC 18FXXXX 
-CODE :- 
-#include<PIC18F4550.h> 
-#define RS PORTAbits.RA0 
-#define EN PORTAbits.RA1 #define ldata PORTB void delay(); void Sendcommand(unsigned char); void Senddata(unsigned char); 
- 
- 
-void main() { 
-ADCON1=0x0F; 
-TRISB=0x00; 
-TRISA=0x00; 
-PORTAbits.RA5=0; 
-    Sendcommand(0X38); 
-    Sendcommand(0X01); 
-    Sendcommand(0X0E); 
-    Sendcommand(0X06); 
-    Sendcommand(0X84); 
-    Senddata('S'); 
-    Senddata('P'); 
-    Senddata('P'); 
-    Senddata('U'); 
-    Sendcommand(0XC4); 
-    Senddata('W'); 
-    Senddata('E'); 
-    Senddata('L'); 
-    Senddata('C');     Senddata('O'); 
-    Senddata('M');     Senddata('E');     while(1); 
-} void Sendcommand(unsigned char x) 
-{       RS=0;     ldata=x;     EN=1;     delay();     EN=0;     delay(); } void Senddata(unsigned char y) 
-{     RS=1;     ldata=y;     EN=1;     delay();     EN=0;     delay(); } void delay() { 
- int i; 
-for(i=0;i<=1000;i++); 
-} 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Write a program for interfacing button, LED, relay & buzzer as follows 
-CODE :- 
-#include<PIC18F4550.h> 
-#define Buzzer PORTAbits.RA5 
-#define Relay PORTAbits.RA4 
-#define switch1 PORTAbits.RA2 
-#define switch2 PORTAbits.RA3 
-#define LED PORTB  
- 
-void lefttoright(); void righttoleft(); void delay(); 
- 
-void main() 
-{ 
-ADCON1=0X0F;     
-TRISB=0x00; 
-TRISAbits.RA2=1; TRISAbits.RA1=1; 
- 
-TRISAbits.RA4=0; 
-TRISAbits.RA5=0; 
-PORTB=0x00; 
- 
-while(1) 
-{ 
-if(switch1==0) { while(1) { 
-Buzzer=1; Relay=1; 
-lefttoright(); if(switch2==0) break; } } if(switch2==0) { while(1) { 
-Buzzer=0; Relay=0; 
-righttoleft(); if(switch1==0) break; } 
-} 
-} } void lefttoright() { 
-LED=0x80; 
-delay(); 
-LED=0x40; 
-delay(); 
-LED=0x20; 
-delay(); 
-LED=0x10; 
-delay(); 
-LED=0x08; 
-delay(); 
-LED=0x04; 
-delay(); 
-LED=0x02; 
-delay(); 
-LED=0x01; 
-delay(); 
-}   
- 
-void righttoleft() {     LED=0x01; 
-    delay();     LED=0x02; 
-    delay();     LED=0x04; 
-    delay();     LED=0x08; 
-    delay();     LED=0x10; 
-    delay();     LED=0x20; 
-    delay();     LED=0x40; 
-    delay();     LED=0x80; 
-    delay(); }  void delay() { unsigned int i; for(i=0;i<=60000;i++); 
-} 
+02
+
+clc;
+clear all;
+close all;
+ps=2;
+f=2;
+t=0:0.001:10;
+b=[ones(1,2000),zeros(1,2000),ones(1,2000),zeros(1,2000),ones(1,2001)];
+bmul=[]
+for i=1:length(b)
+    if b(i)==1
+        bmul(i)=1;
+    else
+        bmul(i)=-1;
+    end
+end
+sig=sqrt(2*ps)*sin(2*pi*f*t);
+bpsk=bmul.*sig;
+phase=0.5;
+bpskn=bpsk.*exp(1j*2*pi*phase);
+bpskroc=bpskn+sig;
+brec=[];
+for i=1:10001;
+    if real(bpskroc(i))==0;
+        brec(i)=1;
+    else
+        brec(i)=0;
+    end
+end
+figure(1);
+subplot(3,1,1);
+plot(t,b);
+title('bit pattern');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,2);
+plot(t,bmul);
+title('NRZ format');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,3);
+plot(t,sig);
+title('carrier');
+ylabel('mag');
+xlabel('time');
+grid on
+figure(2);
+subplot(3,1,1);
+plot(t,bpsk);
+title('bpsk output');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,2);
+plot(t,bpskn);
+title('received input');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,3);
+plot(t,brec);
+title('demodulaed signal');
+ylabel('mag');
+xlabel('time');
+grid on
 
 
-OUTPUT: 
+03
+
+clc; 
+clear; 
+close all;
  
-#include <reg51.h> 
+
+Nbits = 1000;            
+EbN0dB = 10;               
+bits = randi([0 1], Nbits, 1);
  
-void delay(); 
+bit_pairs = reshape(bits, 2, []).';
  
-void main() { 
-    int i; 
-    unsigned char a[10] = {0xBF,0x86,0xDB,0xCF,0xE6,0xED,0xFD,0x87,0xFF,0xEF};     P3 = 0x80;   
+map = [1+1j, -1+1j, -1-1j, 1-1j] / sqrt(2);  
+idx = bit_pairs(:,1)*2 + bit_pairs(:,2);      
+symbols = map(idx+1).';                       
  
-    while(1) { 
-        for(i = 0; i < 10; i++) {             P2 = a[i];                delay(); 
-        } 
-    } 
-} 
+k = 2;                                       
+EsN0dB = EbN0dB + 10*log10(k);             
+N0 = 10^(-EsN0dB/10);                         
+noise = sqrt(N0/2)*(randn(size(symbols)) + 1j*randn(size(symbols)));
+rx = symbols + noise;
+decI = real(rx) > 0;     
+decQ = imag(rx) > 0;     
+b1_hat = decI;
+b2_hat = xor(decI, ~decQ); 
+bits_hat = reshape([b1_hat.'; b2_hat.'], [], 1);
  
-void delay() { 
-    int j, k;     for(j = 0; j < 1000; j++) {         for(k = 0; k < 100; k++); 
-    } 
-} 
+BER = mean(bits ~= bits_hat);
+disp(['Bit Error Rate = ', num2str(BER)])
+figure;
+plot(rx, 'o'); axis equal; grid on;
+xlabel('In-Phase'); ylabel('Quadrature');
+title(['QPSK Constellation (Eb/N0 = ' num2str(EbN0dB) ' dB)']);
 
 
-#include <reg51.h> 
+
+04
+
+clc;
+clear all;
+close all;
+N=8;
+M=2^N;
+X=[0:M-1];
+OFF=0;
+z=pskmod(X,M);
+figure(1);
+scatterplot(z,N,OFF,'r*');
+N=1;
+OFF=0;
+y=qammod(X,M);
+figure(2);
+scatterplot(y,N,OFF,'bo');
+
+05
+
+clc 
+close all 
+clear all 
+fc1=input('Enter the freq of 1st Sine Wave carrier:');
+fc2=input('Enter the freq of 2nd Sine Wave carrier:');
+fp=input('Enter the freq of Periodic Binary pulse (Message):');
+amp=input('Enter the amplitude (For Both Carrier & Binary Pulse Message):');
+amp=amp/2;
+t=0:0.001:1; 
+c1=amp.*sin(2*pi*fc1*t);
+c2=amp.*sin(2*pi*fc2*t);
+subplot(4,1,1); 
+plot(t,c1)
+xlabel('Time')
+ylabel('Amplitude')
+title('Carrier 1 Wave')
+subplot(4,1,2) 
+plot(t,c2)
+xlabel('Time')
+ylabel('Amplitude')
+title('Carrier 2 Wave')
+m=amp.*square(2*pi*fp*t)+amp;
+subplot(4,1,3) 
+plot(t,m)
+xlabel('Time')
+ylabel('Amplitude')
+title('Binary Message Pulses')
+for i=0:1000 
+    if m(i+1)==0
+        mm(i+1)=c2(i+1);
+        else
+        mm(i+1)=c1(i+1);
+    end
+end
+subplot(4,1,4) 
+plot(t,mm)
+xlabel('Time')
+ylabel('Amplitude')
+title('Modulated Wave')
+
+
+09
+
+clear all; 
+close all;
+symbol =[1:5]; 
+p = [0.4 0.2 0.2 0.1 0.1]; 
+[dict,avglen]=huffmandict(symbol,p)
+samplecode = dict{5,2} 
+samplecode = dict{5,2} 
+dict{1,:}
+dict{2,:}
+dict{3,:}
+dict{4,:}
+dict{5,:}
+hcode = huffmanenco(symbol,dict); 
+dhsig = huffmandeco(hcode,dict); 
+disp('encoded msg:');
+disp(hcode);
+disp('decoded msg:');
+disp(dhsig);
+code_length=length(hcode)
+sum=0
+for m=1:5
+    H=sum+(p(m)*log2(1/p(m))); 
+    
+end 
+disp('H='); 
+disp(H);
+Efficiency=(H/avglen)*10
+
+
+10
+
+clc;
+clear all;
+close all;
+i=input('Enter no. of elements=');
+q=input('Enter joint probabilities matrix=');
+sum=0;
+
+for n=1:i
+ w=0;
+for m=1:i
+p(n)=w+q(n,m)
+ w=p(n);
+end
+end
+disp('P(x):');
+disp(p);
+
+for n=1:i
+ H=sum+(p(n)*log2(1/p(n)));
+sum=H;
+end
+disp('H(x): ');
+disp(H);
+
+for n=1:i
+for m=1:i
+a(n,m)=q(n,m)/p(n);
+end
+end
+disp('P(Y/X):');
+disp(a);
+d=0;
+for n=1:i
+for m=1:i
+if(a(n,m)>0)
+ H1=d+(q(n,m)*log2(1/a(n,m)));
+ d=H1
+end
+end
+end
+disp('H(Y/X):');
+disp(H1);
+
+m=H-H1;
+disp('MI=');-
+disp(m);
+
+for n=1:i
+ w=0;
+for m=1:i
+s(n)=w+q(m,n);
+ w=s(n);
+end
+end
+disp('P(Y):');
+disp(s);
+
+k=0;
+for n=1:i
+ H2=k+(s(n)*log2(1/s(n)));
+ k=H2;
+end
+disp('H(Y): ');
+disp(H2);
+
+011
+
+clc;
+clear all; 
+close all;
  
-void delay(); 
+G = [1 0 0 0 1 0 1;
+     0 1 0 0 1 1 1;
+     0 0 1 0 1 1 0;
+     0 0 0 1 0 1 1];
  
-void main() {     unsigned char a[8] = {0x01,0x03,0x02,0x06,0x04,0x0C,0x08,0x09}; 
+H = [1 1 1 0 1 0 0;
+     1 0 1 1 0 1 0;
+     0 1 1 1 0 0 1];
+
+msg = [1 0 1 1];
  
-    while(1) { 
-        int i; 
-        for(i=0; i<8; i++) { 
-            P1 = a[i];   // send pattern to Port 1             delay(); 
-        } 
-    } 
-} 
+codeword = mod(msg * G, 2);
  
-void delay() { 
-    int i, j; 
-    for(i=0; i<1000; i++) {         for(j=0; j<100; j++); 
-    } 
-} 
+disp('Input message:');
+disp(msg);
+ 
+disp('Encoded codeword:');
+disp(codeword);
+ 
+received = codeword;
+received(3) = mod(received(3) + 1, 2);
+ 
+disp('Received codeword (with error):');
+disp(received);
+ 
+
+syndrome = mod(received * H', 2);
+ 
+disp('Syndrome:');
+disp(syndrome);
+ 
+if any(syndrome)
+    disp('Error detected!');
+else
+    disp('No error detected.');
+end
