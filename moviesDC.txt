@@ -1,0 +1,367 @@
+01
+
+clc;
+clear;
+close all;
+
+N = 1000;                   
+t = linspace(0, 1, N);       
+num_realizations = 5;        
+
+f = 5;                       
+A = 2;                       
+
+X = zeros(num_realizations, N);
+
+figure;
+hold on;
+title('Realizations of Random Process X(t)');
+xlabel('Time (t)');
+ylabel('Amplitude');
+grid on;
+
+for i = 1:num_realizations
+    theta = 2*pi*rand();                  
+    X(i, :) = A * cos(2*pi*f*t + theta); 
+    plot(t, X(i, :));
+end
+legend({'Realization 1', 'Realization 2', 'Realization 3', 'Realization 4', 'Realization 5'});
+hold off;
+
+ensemble_mean = mean(X, 1);
+
+[xc, lags] = xcorr(X(1, :), 'biased');
+
+ensemble_variance = var(X, 0, 1);
+
+figure;
+plot(t, ensemble_mean, 'LineWidth', 2);
+title('Ensemble Mean of Random Process');
+xlabel('Time (t)');
+ylabel('Mean');
+grid on;
+
+figure;
+plot(lags, xc, 'LineWidth', 2);
+title('Autocorrelation of 1st Realization');
+xlabel('Lag');
+ylabel('Autocorrelation');
+grid on;
+
+figure;
+plot(t, ensemble_variance, 'r', 'LineWidth', 2);
+title('Ensemble Variance of Random Process');
+xlabel('Time (t)');
+ylabel('Variance');
+grid on;
+
+
+
+02
+
+clc;
+clear all;
+close all;
+ps=2;
+f=2;
+t=0:0.001:10;
+b=[ones(1,2000),zeros(1,2000),ones(1,2000),zeros(1,2000),ones(1,2001)];
+bmul=[]
+for i=1:length(b)
+    if b(i)==1
+        bmul(i)=1;
+    else
+        bmul(i)=-1;
+    end
+end
+sig=sqrt(2*ps)*sin(2*pi*f*t);
+bpsk=bmul.*sig;
+phase=0.5;
+bpskn=bpsk.*exp(1j*2*pi*phase);
+bpskroc=bpskn+sig;
+brec=[];
+for i=1:10001;
+    if real(bpskroc(i))==0;
+        brec(i)=1;
+    else
+        brec(i)=0;
+    end
+end
+figure(1);
+subplot(3,1,1);
+plot(t,b);
+title('bit pattern');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,2);
+plot(t,bmul);
+title('NRZ format');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,3);
+plot(t,sig);
+title('carrier');
+ylabel('mag');
+xlabel('time');
+grid on
+figure(2);
+subplot(3,1,1);
+plot(t,bpsk);
+title('bpsk output');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,2);
+plot(t,bpskn);
+title('received input');
+ylabel('mag');
+xlabel('time');
+grid on
+subplot(3,1,3);
+plot(t,brec);
+title('demodulaed signal');
+ylabel('mag');
+xlabel('time');
+grid on
+
+
+03
+
+clc; 
+clear; 
+close all;
+ 
+
+Nbits = 1000;            
+EbN0dB = 10;               
+bits = randi([0 1], Nbits, 1);
+ 
+bit_pairs = reshape(bits, 2, []).';
+ 
+map = [1+1j, -1+1j, -1-1j, 1-1j] / sqrt(2);  
+idx = bit_pairs(:,1)*2 + bit_pairs(:,2);      
+symbols = map(idx+1).';                       
+ 
+k = 2;                                       
+EsN0dB = EbN0dB + 10*log10(k);             
+N0 = 10^(-EsN0dB/10);                         
+noise = sqrt(N0/2)*(randn(size(symbols)) + 1j*randn(size(symbols)));
+rx = symbols + noise;
+decI = real(rx) > 0;     
+decQ = imag(rx) > 0;     
+b1_hat = decI;
+b2_hat = xor(decI, ~decQ); 
+bits_hat = reshape([b1_hat.'; b2_hat.'], [], 1);
+ 
+BER = mean(bits ~= bits_hat);
+disp(['Bit Error Rate = ', num2str(BER)])
+figure;
+plot(rx, 'o'); axis equal; grid on;
+xlabel('In-Phase'); ylabel('Quadrature');
+title(['QPSK Constellation (Eb/N0 = ' num2str(EbN0dB) ' dB)']);
+
+
+
+04
+
+clc;
+clear all;
+close all;
+N=8;
+M=2^N;
+X=[0:M-1];
+OFF=0;
+z=pskmod(X,M);
+figure(1);
+scatterplot(z,N,OFF,'r*');
+N=1;
+OFF=0;
+y=qammod(X,M);
+figure(2);
+scatterplot(y,N,OFF,'bo');
+
+05
+
+clc 
+close all 
+clear all 
+fc1=input('Enter the freq of 1st Sine Wave carrier:');
+fc2=input('Enter the freq of 2nd Sine Wave carrier:');
+fp=input('Enter the freq of Periodic Binary pulse (Message):');
+amp=input('Enter the amplitude (For Both Carrier & Binary Pulse Message):');
+amp=amp/2;
+t=0:0.001:1; 
+c1=amp.*sin(2*pi*fc1*t);
+c2=amp.*sin(2*pi*fc2*t);
+subplot(4,1,1); 
+plot(t,c1)
+xlabel('Time')
+ylabel('Amplitude')
+title('Carrier 1 Wave')
+subplot(4,1,2) 
+plot(t,c2)
+xlabel('Time')
+ylabel('Amplitude')
+title('Carrier 2 Wave')
+m=amp.*square(2*pi*fp*t)+amp;
+subplot(4,1,3) 
+plot(t,m)
+xlabel('Time')
+ylabel('Amplitude')
+title('Binary Message Pulses')
+for i=0:1000 
+    if m(i+1)==0
+        mm(i+1)=c2(i+1);
+        else
+        mm(i+1)=c1(i+1);
+    end
+end
+subplot(4,1,4) 
+plot(t,mm)
+xlabel('Time')
+ylabel('Amplitude')
+title('Modulated Wave')
+
+
+09
+
+clear all; 
+close all;
+symbol =[1:5]; 
+p = [0.4 0.2 0.2 0.1 0.1]; 
+[dict,avglen]=huffmandict(symbol,p)
+samplecode = dict{5,2} 
+samplecode = dict{5,2} 
+dict{1,:}
+dict{2,:}
+dict{3,:}
+dict{4,:}
+dict{5,:}
+hcode = huffmanenco(symbol,dict); 
+dhsig = huffmandeco(hcode,dict); 
+disp('encoded msg:');
+disp(hcode);
+disp('decoded msg:');
+disp(dhsig);
+code_length=length(hcode)
+sum=0
+for m=1:5
+    H=sum+(p(m)*log2(1/p(m))); 
+    
+end 
+disp('H='); 
+disp(H);
+Efficiency=(H/avglen)*10
+
+
+10
+
+clc;
+clear all;
+close all;
+i=input('Enter no. of elements=');
+q=input('Enter joint probabilities matrix=');
+sum=0;
+
+for n=1:i
+ w=0;
+for m=1:i
+p(n)=w+q(n,m)
+ w=p(n);
+end
+end
+disp('P(x):');
+disp(p);
+
+for n=1:i
+ H=sum+(p(n)*log2(1/p(n)));
+sum=H;
+end
+disp('H(x): ');
+disp(H);
+
+for n=1:i
+for m=1:i
+a(n,m)=q(n,m)/p(n);
+end
+end
+disp('P(Y/X):');
+disp(a);
+d=0;
+for n=1:i
+for m=1:i
+if(a(n,m)>0)
+ H1=d+(q(n,m)*log2(1/a(n,m)));
+ d=H1
+end
+end
+end
+disp('H(Y/X):');
+disp(H1);
+
+m=H-H1;
+disp('MI=');-
+disp(m);
+
+for n=1:i
+ w=0;
+for m=1:i
+s(n)=w+q(m,n);
+ w=s(n);
+end
+end
+disp('P(Y):');
+disp(s);
+
+k=0;
+for n=1:i
+ H2=k+(s(n)*log2(1/s(n)));
+ k=H2;
+end
+disp('H(Y): ');
+disp(H2);
+
+011
+
+clc;
+clear all; 
+close all;
+ 
+G = [1 0 0 0 1 0 1;
+     0 1 0 0 1 1 1;
+     0 0 1 0 1 1 0;
+     0 0 0 1 0 1 1];
+ 
+H = [1 1 1 0 1 0 0;
+     1 0 1 1 0 1 0;
+     0 1 1 1 0 0 1];
+
+msg = [1 0 1 1];
+ 
+codeword = mod(msg * G, 2);
+ 
+disp('Input message:');
+disp(msg);
+ 
+disp('Encoded codeword:');
+disp(codeword);
+ 
+received = codeword;
+received(3) = mod(received(3) + 1, 2);
+ 
+disp('Received codeword (with error):');
+disp(received);
+ 
+
+syndrome = mod(received * H', 2);
+ 
+disp('Syndrome:');
+disp(syndrome);
+ 
+if any(syndrome)
+    disp('Error detected!');
+else
+    disp('No error detected.');
+end
